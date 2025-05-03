@@ -56,16 +56,21 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
    uvicorn app.main:app --reload
    ```
 
-### Option 2: Run with Docker
+### Option 2: Run with Docker Compose
 
 1. Clone the repository
-2. Build the Docker image:
+2. Run the setup script to configure environment variables:
    ```
-   docker build -t transcript-analysis-api .
+   ./setup.sh
    ```
-3. Run the container with your OpenAI API key:
+   This will create a `.env` file with your OpenAI API key and other settings.
+3. Start the services:
    ```
-   docker run -p 8000:8000 -e OPENAI_API_KEY=your_api_key -e OPENAI_MODEL=gpt-4o-2024-08-06 transcript-analysis-api
+   docker-compose up -d
+   ```
+4. To stop the services:
+   ```
+   docker-compose down
    ```
 
 ### Accessing the API

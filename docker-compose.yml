@@ -1,17 +1,22 @@
-version: '3'
+version: '3.8'
 
 services:
   api:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8000:8000"
+      - "${PORT:-8000}:8000"
     environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_api_key_here}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-2024-08-06}
+      - PORT=${PORT:-8000}
     volumes:
       - ./app:/app/app
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/swagger"]
       interval: 30s
       timeout: 10s
-      retries: 3 
+      retries: 3
+      start_period: 10s 
