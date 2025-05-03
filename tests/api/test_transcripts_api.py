@@ -13,11 +13,13 @@ def client():
     with patch("app.adapters.openai.OpenAIAdapter") as mock_adapter_class:
         # Configure the mock to return appropriate values
         mock_adapter = mock_adapter_class.return_value
-        mock_adapter.run_completion.return_value = type(
+        base_response = type(
             "Response",
             (),
             {"summary": "Test summary", "action_items": ["Action 1", "Action 2"]}
         )
+        mock_adapter.run_completion.return_value = base_response
+        mock_adapter.run_completion_async = AsyncMock(return_value=base_response)
         
         app = create_app()
         with TestClient(app) as test_client:

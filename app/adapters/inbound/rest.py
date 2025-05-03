@@ -56,7 +56,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
     ) -> AnalysisResponse:
         """Analyze a transcript to generate a summary and action items (GET method)"""
         try:
-            analysis = analyzer_service.analyze(transcript)
+            analysis = await analyzer_service.analyze_async(transcript)
             return AnalysisResponse.from_domain(analysis)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
@@ -67,7 +67,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
     ) -> AnalysisResponse:
         """Analyze a transcript to generate a summary and action items (POST method)"""
         try:
-            analysis = analyzer_service.analyze(request.transcript)
+            analysis = await analyzer_service.analyze_async(request.transcript)
             return AnalysisResponse.from_domain(analysis)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
