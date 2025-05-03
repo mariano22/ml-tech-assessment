@@ -9,6 +9,7 @@ A Python web API that analyzes plain text transcripts and returns a summary alon
 - In-memory storage of analysis results
 - RESTful API with proper error handling
 - Swagger documentation
+- Asynchronous batch processing for concurrent transcript analysis
 
 ## Architecture
 
@@ -31,6 +32,13 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
 - **POST /transcripts/analyze**
   - Request body: `{ "transcript": "text" }`
   - Returns a summary and action items
+
+### Batch Analysis (Concurrent Processing)
+
+- **POST /transcripts/analyze/batch**
+  - Request body: `{ "transcripts": ["text1", "text2", ...] }`
+  - Processes multiple transcripts concurrently
+  - Returns an array of results: `{ "results": [{ id, summary, action_items }, ...] }`
 
 ### Get Transcript Analysis by ID
 
@@ -88,3 +96,4 @@ pytest
 The tests include:
 - Unit tests for the analyzer service
 - API integration tests
+- Async tests for concurrent processing
