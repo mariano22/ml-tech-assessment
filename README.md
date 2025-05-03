@@ -126,12 +126,15 @@ curl -X POST http://localhost:8000/transcripts \
 Expected response:
 ```json
 {
-  "id": "59a76d43-8c45-4dca-9a5c-0c82e8f9e182",
-  "summary": "Discussion on improving testing processes and deployment automation.",
+  "id": "4e59823b-4877-4569-b50c-8572dfcebe0e",
+  "summary": "The team discussed the need to enhance their testing process by implementing Test-Driven Development (TDD) and increasing their code coverage to ensure higher quality code. Furthermore, there is a necessity to automate the deployment pipeline to streamline operations and improve efficiency.",
   "action_items": [
-    "Implement Test-Driven Development (TDD)",
-    "Increase code coverage in tests",
-    "Automate the deployment pipeline"
+    "Research and implement Test-Driven Development (TDD) practices within the team.",
+    "Set specific targets for code coverage improvements and regularly monitor progress.",
+    "Identify tools and resources required for testing improvements and conduct training sessions if necessary.",
+    "Assess current deployment processes to identify bottlenecks and areas for automation.",
+    "Select a suitable deployment automation tool, possibly integrating with existing systems, and plan its implementation.",
+    "Develop a timeline and project plan for rolling out improvements in both testing and deployment processes."
   ]
 }
 ```
@@ -146,21 +149,15 @@ Expected response:
 ```json
 [
   {
-    "id": "59a76d43-8c45-4dca-9a5c-0c82e8f9e182",
-    "summary": "Discussion on improving testing processes and deployment automation.",
+    "id": "4e59823b-4877-4569-b50c-8572dfcebe0e",
+    "summary": "The team discussed the need to enhance their testing process by implementing Test-Driven Development (TDD) and increasing their code coverage to ensure higher quality code. Furthermore, there is a necessity to automate the deployment pipeline to streamline operations and improve efficiency.",
     "action_items": [
-      "Implement Test-Driven Development (TDD)",
-      "Increase code coverage in tests",
-      "Automate the deployment pipeline"
-    ]
-  },
-  {
-    "id": "7f8d9a6b-1c2d-3e4f-5a6b-7c8d9e0f1a2b",
-    "summary": "Increased customer service calls about mobile app login problems.",
-    "action_items": [
-      "Investigate mobile app login issues",
-      "Prepare communication plan for affected users",
-      "Monitor call volumes to track resolution progress"
+      "Research and implement Test-Driven Development (TDD) practices within the team.",
+      "Set specific targets for code coverage improvements and regularly monitor progress.",
+      "Identify tools and resources required for testing improvements and conduct training sessions if necessary.",
+      "Assess current deployment processes to identify bottlenecks and areas for automation.",
+      "Select a suitable deployment automation tool, possibly integrating with existing systems, and plan its implementation.",
+      "Develop a timeline and project plan for rolling out improvements in both testing and deployment processes."
     ]
   }
 ]
@@ -184,21 +181,25 @@ Expected response:
 {
   "results": [
     {
-      "id": "7f8d9a6b-1c2d-3e4f-5a6b-7c8d9e0f1a2b",
-      "summary": "Increased customer service calls about mobile app login problems.",
+      "id": "71dfb2fd-52b2-43ab-8550-51cb12ca0629",
+      "summary": "The customer service team has experienced a rise in call volumes, specifically related to problems users are encountering with logging into the mobile app.",
       "action_items": [
-        "Investigate mobile app login issues",
-        "Prepare communication plan for affected users",
-        "Monitor call volumes to track resolution progress"
+        "Investigate the root cause of the mobile app login issues.",
+        "Deploy a dedicated technical team to address and fix the login problems promptly.",
+        "Communicate with users about the known issue and provide regular updates on the resolution status.",
+        "Consider implementing a temporary workaround for users while a permanent fix is being developed.",
+        "Enhance system monitoring to detect early warning signs of similar issues in the future.",
+        "Review and improve the QA process to prevent similar issues from occurring post-deployment."
       ]
     },
     {
-      "id": "2a3b4c5d-6e7f-8a9b-0c1d-2e3f4a5b6c7d",
-      "summary": "Marketing plan for Q3 premium tier promotion with 15% discount.",
+      "id": "3287e11e-9a31-4534-9060-0e46e334eeba",
+      "summary": "The marketing team plans to implement a Q3 promotion offering a 15% discount on the premium tier product.",
       "action_items": [
-        "Create promotion assets for the premium tier",
-        "Set up the 15% discount in the billing system",
-        "Prepare Q3 marketing campaign timeline"
+        "Evaluate the potential impact of a 15% discount on the premium tier's revenue and profit margins.",
+        "Design a marketing strategy to effectively communicate the promotion to the target audience.",
+        "Coordinate with sales and customer service teams to prepare for potential customer inquiries and increased interest during the promotion.",
+        "Monitor and analyze the promotion's performance to assess its success and inform future promotional strategies."
       ]
     }
   ]
