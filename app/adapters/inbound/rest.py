@@ -126,12 +126,5 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
             logger.warning(f"Analysis not found for ID: {analysis_id}")
             raise HTTPException(status_code=404, detail=str(e))
     
-    @router.get("/health")
-    async def health_check(request: Request) -> dict:
-        """Check the health of the application"""
-        client_host = request.client.host if request.client else "unknown"
-        logger.debug(f"Health check request from {client_host}")
-        return {"status": "healthy"}
-    
     logger.info("API router built successfully")
     return router 
