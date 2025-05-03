@@ -1,53 +1,68 @@
-# ml-tech-assessment
+# Transcript Analysis API
 
-## Environment Setup
+A Python web API that analyzes plain text transcripts and returns a summary along with a list of next actions. The implementation follows clean architectural practices with proper separation of concerns.
 
-### Using Conda (Recommended)
+## Features
 
-1. Install Conda if you haven't already:
-   - Download and install [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://www.anaconda.com/products/distribution)
+- Analyze transcripts using OpenAI's API
+- Get previously analyzed transcripts by ID
+- In-memory storage of analysis results
+- RESTful API with proper error handling
+- Swagger documentation
 
-2. Create and activate a new conda environment:
-   ```bash
-   conda create -n ml-assessment python=3.12
-   conda activate ml-assessment
+## Architecture
+
+The project follows a Hexagonal (Ports & Adapters) Architecture:
+
+- **Domain Layer**: Core business entities
+- **Application Layer**: Use cases and services
+- **Adapters Layer**: Inbound (API controllers) and outbound (OpenAI) adapters
+- **Infrastructure Layer**: Technical implementations (repositories)
+- **Ports**: Interfaces defining the boundaries between layers
+
+## API Endpoints
+
+### Analyze Transcript
+
+- **GET /transcripts/analyze?transcript={text}**
+  - Accepts a plain text transcript
+  - Returns a summary and action items
+
+- **POST /transcripts/analyze**
+  - Request body: `{ "transcript": "text" }`
+  - Returns a summary and action items
+
+### Get Transcript Analysis by ID
+
+- **GET /transcripts/{id}**
+  - Retrieves a previously generated analysis by ID
+
+## Setup and Running
+
+1. Clone the repository
+2. Set up environment variables:
    ```
-
-## Installing Poetry and Dependencies
-
-1. Install Poetry using pip:
-   ```bash
-   pip install poetry
+   OPENAI_API_KEY=your_api_key
+   OPENAI_MODEL=gpt-4o-2024-08-06
    ```
-
-2. Install project dependencies:
-   ```bash
+3. Install dependencies:
+   ```
    poetry install
    ```
+4. Run the API:
+   ```
+   uvicorn app.main:app --reload
+   ```
+5. Access the Swagger documentation at: http://localhost:8000/swagger
 
-## Environment Variables
+## Testing
 
-1. Create a `.env` file in the root directory of the project
-2. Copy the contents of the provided `.env` file into your local `.env` file
+Run the tests with:
 
-## Running Tests
-
-To run the tests, make sure you have:
-1. Activated your virtual environment
-2. Installed all dependencies using Poetry
-3. Created and populated the `.env` file
-
-Then run:
-```bash
+```
 pytest
 ```
 
-For more detailed test output:
-```bash
-pytest -v
-```
-
-For test coverage report:
-```bash
-pytest --cov
-```
+The tests include:
+- Unit tests for the analyzer service
+- API integration tests
