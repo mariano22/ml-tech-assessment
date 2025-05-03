@@ -7,6 +7,7 @@ from app.application.analyze_service import TranscriptAnalyzerService
 from app.domain.models import TranscriptAnalysis
 from app.dto.analysis import AnalysisDTO
 from app.ports import LLm, TranscriptRepository
+from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError
 
 
 class TestTranscriptAnalyzerService:
@@ -38,10 +39,10 @@ class TestTranscriptAnalyzerService:
         
     def test_analyze_with_empty_transcript(self):
         # Arrange & Act & Assert
-        with pytest.raises(ValueError, match="Transcript cannot be empty"):
+        with pytest.raises(EmptyTranscriptError, match="Transcript cannot be empty"):
             self.service.analyze("")
         
-        with pytest.raises(ValueError, match="Transcript cannot be empty"):
+        with pytest.raises(EmptyTranscriptError, match="Transcript cannot be empty"):
             self.service.analyze("   ")
         
         self.mock_llm.run_completion.assert_not_called()
@@ -103,10 +104,10 @@ class TestTranscriptAnalyzerService:
         self.mock_llm.run_completion_async = AsyncMock()
         
         # Act & Assert
-        with pytest.raises(ValueError, match="Transcript cannot be empty"):
+        with pytest.raises(EmptyTranscriptError, match="Transcript cannot be empty"):
             await self.service.analyze_async("")
         
-        with pytest.raises(ValueError, match="Transcript cannot be empty"):
+        with pytest.raises(EmptyTranscriptError, match="Transcript cannot be empty"):
             await self.service.analyze_async("   ")
         
         self.mock_llm.run_completion_async.assert_not_called()
@@ -142,7 +143,7 @@ class TestTranscriptAnalyzerService:
     @pytest.mark.asyncio
     async def test_analyze_many_with_empty_list(self):
         # Act & Assert
-        with pytest.raises(ValueError, match="No transcripts provided"):
+        with pytest.raises(InvalidBatchError, match="No transcripts provided"):
             await self.service.analyze_many([])
             
         # No methods should be called
@@ -155,7 +156,7 @@ class TestTranscriptAnalyzerService:
         transcripts = ["Valid transcript", ""]
         
         # Act & Assert
-        with pytest.raises(ValueError, match="All transcripts must be non-empty"):
+        with pytest.raises(InvalidBatchError, match="All transcripts must be non-empty"):
             await self.service.analyze_many(transcripts)
             
         # Verify that no analysis was attempted

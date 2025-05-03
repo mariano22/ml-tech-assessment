@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from app.domain.models import TranscriptAnalysis
 from app.ports import TranscriptAnalyzer
+from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError, TranscriptNotFoundError
 
 
 class TranscriptRequest(BaseModel):
@@ -58,7 +59,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         try:
             analysis = await analyzer_service.analyze_async(transcript)
             return AnalysisResponse.from_domain(analysis)
-        except ValueError as e:
+        except EmptyTranscriptError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.post("/analyze", response_model=AnalysisResponse)
@@ -69,7 +70,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         try:
             analysis = await analyzer_service.analyze_async(request.transcript)
             return AnalysisResponse.from_domain(analysis)
-        except ValueError as e:
+        except EmptyTranscriptError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.post("/analyze/batch", response_model=BatchAnalysisResponse)
@@ -83,7 +84,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
             response_items = [AnalysisResponse.from_domain(analysis) for analysis in analyses]
             
             return BatchAnalysisResponse(results=response_items)
-        except ValueError as e:
+        except InvalidBatchError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.get("/{analysis_id}", response_model=AnalysisResponse)
@@ -92,7 +93,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         try:
             analysis = analyzer_service.get_analysis(analysis_id)
             return AnalysisResponse.from_domain(analysis)
-        except ValueError as e:
+        except TranscriptNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))
     
     return router 
