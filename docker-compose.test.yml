@@ -11,6 +11,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy_key}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - PYTHONPATH=/app
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ./app:/app/app
       - ./tests:/app/tests
@@ -28,6 +29,7 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy_key}
       - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
       - PYTHONPATH=/app
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
     volumes:
       - ./app:/app/app
       - ./tests:/app/tests

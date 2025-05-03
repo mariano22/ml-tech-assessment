@@ -1,13 +1,17 @@
 import uuid
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, Request
 from pydantic import BaseModel
 
 from app.domain.models import TranscriptAnalysis
 from app.ports import TranscriptAnalyzer
 from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError, TranscriptNotFoundError
 from app.schemas.http_error import HTTPError
+from app.logging import get_logger
+
+# Create logger for this module
+logger = get_logger(__name__)
 
 
 class TranscriptRequest(BaseModel):
@@ -50,56 +54,88 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
     Returns:
         Configured FastAPI router
     """
+    logger.info("Building API router")
     router = APIRouter(prefix="/transcripts", tags=["transcripts"])
     
     @router.get("/analyze", response_model=AnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcript_get(
+        request: Request,
         transcript: Annotated[str, Query(description="The transcript text to analyze")]
     ) -> AnalysisResponse:
         """Analyze a transcript to generate a summary and action items (GET method)"""
+        client_host = request.client.host if request.client else "unknown"
+        logger.info(f"GET /analyze request received from {client_host}")
+        logger.debug(f"Transcript length: {len(transcript)} characters")
+        
         try:
             analysis = await analyzer_service.analyze_async(transcript)
+            logger.info(f"Analysis successful, returning ID: {analysis.id}")
             return AnalysisResponse.from_domain(analysis)
         except EmptyTranscriptError as e:
+            logger.warning(f"Bad request from {client_host}: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.post("/analyze", response_model=AnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcript_post(
-        request: TranscriptRequest
+        request: Request,
+        body: TranscriptRequest
     ) -> AnalysisResponse:
         """Analyze a transcript to generate a summary and action items (POST method)"""
+        client_host = request.client.host if request.client else "unknown"
+        logger.info(f"POST /analyze request received from {client_host}")
+        logger.debug(f"Transcript length: {len(body.transcript)} characters")
+        
         try:
-            analysis = await analyzer_service.analyze_async(request.transcript)
+            analysis = await analyzer_service.analyze_async(body.transcript)
+            logger.info(f"Analysis successful, returning ID: {analysis.id}")
             return AnalysisResponse.from_domain(analysis)
         except EmptyTranscriptError as e:
+            logger.warning(f"Bad request from {client_host}: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.post("/analyze/batch", response_model=BatchAnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcripts_batch(
-        request: BatchTranscriptRequest
+        request: Request,
+        body: BatchTranscriptRequest
     ) -> BatchAnalysisResponse:
         """Concurrently analyze multiple transcripts to generate summaries and action items"""
+        client_host = request.client.host if request.client else "unknown"
+        logger.info(f"POST /analyze/batch request received from {client_host} with {len(body.transcripts)} transcripts")
+        
         try:
-            analyses = await analyzer_service.analyze_many(request.transcripts)
+            analyses = await analyzer_service.analyze_many(body.transcripts)
             
             response_items = [AnalysisResponse.from_domain(analysis) for analysis in analyses]
+            logger.info(f"Batch analysis complete, returning {len(response_items)} results")
             
             return BatchAnalysisResponse(results=response_items)
         except InvalidBatchError as e:
+            logger.warning(f"Bad batch request from {client_host}: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
     
     @router.get("/{analysis_id}", response_model=AnalysisResponse, responses={404: {"model": HTTPError}})
-    async def get_analysis(analysis_id: uuid.UUID) -> AnalysisResponse:
+    async def get_analysis(
+        request: Request,
+        analysis_id: uuid.UUID
+    ) -> AnalysisResponse:
         """Get a previously generated transcript analysis by ID"""
+        client_host = request.client.host if request.client else "unknown"
+        logger.info(f"GET /{analysis_id} request received from {client_host}")
+        
         try:
             analysis = analyzer_service.get_analysis(analysis_id)
+            logger.info(f"Retrieved analysis with ID: {analysis_id}")
             return AnalysisResponse.from_domain(analysis)
         except TranscriptNotFoundError as e:
+            logger.warning(f"Analysis not found for ID: {analysis_id}")
             raise HTTPException(status_code=404, detail=str(e))
     
     @router.get("/health")
-    async def health_check() -> dict:
+    async def health_check(request: Request) -> dict:
         """Check the health of the application"""
+        client_host = request.client.host if request.client else "unknown"
+        logger.debug(f"Health check request from {client_host}")
         return {"status": "healthy"}
     
+    logger.info("API router built successfully")
     return router 
