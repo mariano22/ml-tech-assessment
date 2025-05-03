@@ -1,4 +1,5 @@
 import uuid
+import asyncio
 import pydantic
 from app.domain.models import TranscriptAnalysis
 from app.ports import LLm, TranscriptAnalyzer, TranscriptRepository
@@ -50,4 +51,45 @@ class TranscriptAnalyzerService(TranscriptAnalyzer):
         Raises:
             ValueError: If no analysis with the given ID exists
         """
-        return self._repository.get(analysis_id) 
+        return self._repository.get(analysis_id)
+        
+    async def analyze_async(self, transcript: str) -> TranscriptAnalysis:
+        """Asynchronously analyze a transcript using the LLM and store the result"""
+        if not transcript or transcript.isspace():
+            raise ValueError("Transcript cannot be empty")
+        
+        user_prompt = RAW_USER_PROMPT.format(transcript=transcript)
+        llm_response = await self._llm.run_completion_async(
+            SYSTEM_PROMPT, 
+            user_prompt, 
+            AnalysisDTO
+        )
+        
+        analysis = TranscriptAnalysis(
+            summary=llm_response.summary,
+            action_items=llm_response.action_items
+        )
+        
+        self._repository.save(analysis)
+        return analysis
+        
+    async def analyze_many(self, transcripts: list[str]) -> list[TranscriptAnalysis]:
+        """Concurrently analyze multiple transcripts
+        
+        Args:
+            transcripts: List of transcript texts to analyze
+            
+        Returns:
+            List of analysis results with summaries and action items
+            
+        Raises:
+            ValueError: If the transcripts list is empty or contains empty transcripts
+        """
+        if not transcripts:
+            raise ValueError("No transcripts provided")
+            
+        # Create a list of coroutines for parallel execution
+        analysis_coroutines = [self.analyze_async(transcript) for transcript in transcripts]
+        
+        # Run all analysis tasks concurrently
+        return await asyncio.gather(*analysis_coroutines) 
