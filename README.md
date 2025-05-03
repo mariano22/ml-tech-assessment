@@ -85,15 +85,56 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
 
 Access the Swagger documentation at: http://localhost:8000/swagger
 
-## Testing
+## Tests
 
-Run the tests with:
+The project includes a comprehensive testing infrastructure:
 
+- Unit tests for all application layers
+- Integration tests for the API endpoints
+- Tests for asynchronous functionality
+- Mocks for external dependencies (OpenAI API)
+- Complete test coverage (>95%)
+- Docker-based testing environment
+
+### Running Tests with Docker
+
+Run the entire test suite:
+
+```bash
+# Using the main docker-compose.yml
+docker-compose run --rm test poetry run pytest
+
+# Using dedicated test docker-compose.test.yml
+docker-compose -f docker-compose.test.yml up test
+
+# Run with test coverage report
+docker-compose -f docker-compose.test.yml up test-coverage
 ```
-pytest
+
+Run specific tests:
+
+```bash
+# Run a specific test file
+docker-compose run --rm test poetry run pytest tests/api/test_transcripts_api.py
+
+# Run a specific test
+docker-compose run --rm test poetry run pytest tests/api/test_transcripts_api.py::test_health_check
+
+# Run with verbose output
+docker-compose run --rm test poetry run pytest -v
 ```
 
-The tests include:
-- Unit tests for the analyzer service
-- API integration tests
-- Async tests for concurrent processing
+### Test Coverage
+
+Generate a test coverage report:
+
+```bash
+# Basic coverage report
+docker-compose run --rm test poetry run pytest --cov=app tests/
+
+# Generate HTML coverage report
+docker-compose run --rm test poetry run pytest --cov=app --cov-report=html tests/
+# The HTML report will be in htmlcov/ directory
+```
+
+The tests use mocks to avoid making actual calls to the OpenAI API, so you don't need a valid API key to run the tests.

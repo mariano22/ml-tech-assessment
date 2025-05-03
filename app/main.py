@@ -1,12 +1,16 @@
-from fastapi import FastAPI, status
+from fastapi import FastAPI, status, Depends
 from app import configurations
 from app.adapters.inbound.rest import build_router
 from app.adapters.openai import OpenAIAdapter
 from app.container import get_service
+from app.ports import LLm, TranscriptAnalyzer
 
 
-def create_app() -> FastAPI:
+def create_app(llm_adapter: LLm = None) -> FastAPI:
     """Create and configure the FastAPI application
+    
+    Args:
+        llm_adapter: Optional LLM adapter for testing purposes
     
     Returns:
         Configured FastAPI application
@@ -15,7 +19,9 @@ def create_app() -> FastAPI:
     env = configurations.EnvConfigs()
     
     # Create dependencies
-    llm_adapter = OpenAIAdapter(api_key=env.OPENAI_API_KEY, model=env.OPENAI_MODEL)
+    if llm_adapter is None:
+        llm_adapter = OpenAIAdapter(api_key=env.OPENAI_API_KEY, model=env.OPENAI_MODEL)
+    
     analyzer_service = get_service(llm=llm_adapter)
     
     # Create and configure FastAPI app

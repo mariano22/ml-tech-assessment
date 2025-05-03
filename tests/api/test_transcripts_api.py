@@ -1,58 +1,13 @@
 import uuid
-from unittest.mock import patch, AsyncMock
 import pytest
 from fastapi.testclient import TestClient
 import httpx
 
-from app.main import create_app
 from app.domain.models import TranscriptAnalysis
 
 
-@pytest.fixture
-def client():
-    with patch("app.adapters.openai.OpenAIAdapter") as mock_adapter_class:
-        # Configure the mock to return appropriate values
-        mock_adapter = mock_adapter_class.return_value
-        base_response = type(
-            "Response",
-            (),
-            {"summary": "Test summary", "action_items": ["Action 1", "Action 2"]}
-        )
-        mock_adapter.run_completion.return_value = base_response
-        mock_adapter.run_completion_async = AsyncMock(return_value=base_response)
-        
-        app = create_app()
-        with TestClient(app) as test_client:
-            yield test_client
-            
-            
-@pytest.fixture
-async def async_client():
-    with patch("app.adapters.openai.OpenAIAdapter") as mock_adapter_class:
-        # Configure the mock to return appropriate values for both sync and async methods
-        mock_adapter = mock_adapter_class.return_value
-        
-        # Set up sync method
-        mock_adapter.run_completion.return_value = type(
-            "Response",
-            (),
-            {"summary": "Test summary", "action_items": ["Action 1", "Action 2"]}
-        )
-        
-        # Set up async method to return the same
-        mock_response = type(
-            "Response",
-            (),
-            {"summary": "Test summary", "action_items": ["Action 1", "Action 2"]}
-        )
-        mock_adapter.run_completion_async = AsyncMock(return_value=mock_response)
-        
-        app = create_app()
-        async with httpx.AsyncClient(app=app, base_url="http://test") as ac:
-            yield ac
-
-
 def test_analyze_transcript_get(client):
+    """Test that the GET /transcripts/analyze endpoint works correctly."""
     # Arrange
     test_transcript = "This is a test transcript"
     
@@ -68,6 +23,7 @@ def test_analyze_transcript_get(client):
 
 
 def test_analyze_transcript_post(client):
+    """Test that the POST /transcripts/analyze endpoint works correctly."""
     # Arrange
     request_data = {"transcript": "This is a test transcript"}
     
@@ -83,6 +39,7 @@ def test_analyze_transcript_post(client):
 
 
 def test_analyze_empty_transcript(client):
+    """Test that empty transcripts are rejected with appropriate error messages."""
     # Act - using GET endpoint
     response = client.get("/transcripts/analyze?transcript=")
     
@@ -99,6 +56,7 @@ def test_analyze_empty_transcript(client):
 
 
 def test_get_analysis_by_id(client):
+    """Test that getting an analysis by ID works correctly."""
     # Arrange - first create an analysis
     test_transcript = "This is a test transcript"
     create_response = client.get(f"/transcripts/analyze?transcript={test_transcript}")
@@ -116,6 +74,7 @@ def test_get_analysis_by_id(client):
 
 
 def test_get_analysis_not_found(client):
+    """Test that appropriate error is returned when analysis is not found."""
     # Arrange
     nonexistent_id = str(uuid.uuid4())
     
@@ -129,6 +88,7 @@ def test_get_analysis_not_found(client):
 
 @pytest.mark.asyncio
 async def test_analyze_batch(async_client):
+    """Test that batch analysis works correctly for multiple transcripts."""
     # Arrange
     batch_request = {
         "transcripts": [
@@ -156,6 +116,7 @@ async def test_analyze_batch(async_client):
 
 @pytest.mark.asyncio
 async def test_analyze_batch_empty_list(async_client):
+    """Test that batch analysis rejects empty transcript lists."""
     # Arrange
     batch_request = {"transcripts": []}
     
@@ -169,6 +130,7 @@ async def test_analyze_batch_empty_list(async_client):
 
 @pytest.mark.asyncio
 async def test_analyze_batch_with_empty_transcript(async_client):
+    """Test that batch analysis rejects lists containing empty transcripts."""
     # Arrange
     batch_request = {
         "transcripts": ["Valid transcript", ""]

@@ -19,4 +19,19 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s 
+      start_period: 10s
+      
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - BUILD_ENV=dev
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-dummy_key}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4}
+      - PYTHONPATH=/app
+    volumes:
+      - ./app:/app/app
+      - ./tests:/app/tests
+    command: poetry run pytest 
