@@ -1,5 +1,5 @@
 import uuid
-from typing import Annotated
+from typing import Annotated, List
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
@@ -11,6 +11,11 @@ from app.ports import TranscriptAnalyzer
 class TranscriptRequest(BaseModel):
     """API request model for transcript analysis"""
     transcript: str
+
+
+class BatchTranscriptRequest(BaseModel):
+    """API request model for batch transcript analysis"""
+    transcripts: List[str]
 
 
 class AnalysisResponse(BaseModel):
@@ -27,6 +32,11 @@ class AnalysisResponse(BaseModel):
             summary=analysis.summary,
             action_items=analysis.action_items
         )
+
+
+class BatchAnalysisResponse(BaseModel):
+    """API response model for batch transcript analysis"""
+    results: List[AnalysisResponse]
 
 
 def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
@@ -59,6 +69,20 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         try:
             analysis = analyzer_service.analyze(request.transcript)
             return AnalysisResponse.from_domain(analysis)
+        except ValueError as e:
+            raise HTTPException(status_code=400, detail=str(e))
+    
+    @router.post("/analyze/batch", response_model=BatchAnalysisResponse)
+    async def analyze_transcripts_batch(
+        request: BatchTranscriptRequest
+    ) -> BatchAnalysisResponse:
+        """Concurrently analyze multiple transcripts to generate summaries and action items"""
+        try:
+            analyses = await analyzer_service.analyze_many(request.transcripts)
+            
+            response_items = [AnalysisResponse.from_domain(analysis) for analysis in analyses]
+            
+            return BatchAnalysisResponse(results=response_items)
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
