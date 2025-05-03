@@ -1,5 +1,7 @@
 # Transcript Analysis API
 
+[![Tests Status](https://img.shields.io/badge/tests-passing-brightgreen)](docker-compose.test.yml)
+
 A Python web API that analyzes plain text transcripts and returns a summary along with a list of next actions. The implementation follows clean architectural practices with proper separation of concerns.
 
 ## Features
