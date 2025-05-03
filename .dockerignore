@@ -8,40 +8,22 @@ __pycache__/
 *$py.class
 *.so
 .Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Tests
-tests/
-.pytest_cache/
+.pytest_cache
 .coverage
 htmlcov/
 
-# Docker
-Dockerfile
-.dockerignore
-
-# Local environment
-.env.local
-.venv
+# Virtual Environment
 venv/
-ENV/
+.env
 
-# IDE
-.idea/
+# Tests
+tests/
+
+# Editor
 .vscode/
-*.swp
-*.swo 
+.idea/
+
+# Project specific
+README.md
+Dockerfile
+.dockerignore 
