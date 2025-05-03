@@ -98,7 +98,7 @@ app/adapters/inbound/rest.py
 ```
 Builds a FastAPI `APIRouter`:
   – `/transcripts` POST (create analysis)
-  – `/transcripts` GET (list all analyses)
+  – `/transcripts` GET (list all analysis IDs)
   – `/transcripts/{id}` GET (get analysis by ID)
   – `/transcripts/batch` POST (process multiple transcripts)
   – `/health` GET (health check)

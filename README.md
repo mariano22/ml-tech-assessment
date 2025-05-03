@@ -52,7 +52,7 @@ The API follows RESTful principles:
 ### List All Transcript Analyses
 
 - **GET /transcripts**
-  - Retrieves all previously generated analyses
+  - Retrieves a list of all analysis IDs
 
 ### Get Transcript Analysis by ID
 
@@ -148,18 +148,9 @@ curl http://localhost:8000/transcripts
 Expected response:
 ```json
 [
-  {
-    "id": "4e59823b-4877-4569-b50c-8572dfcebe0e",
-    "summary": "The team discussed the need to enhance their testing process by implementing Test-Driven Development (TDD) and increasing their code coverage to ensure higher quality code. Furthermore, there is a necessity to automate the deployment pipeline to streamline operations and improve efficiency.",
-    "action_items": [
-      "Research and implement Test-Driven Development (TDD) practices within the team.",
-      "Set specific targets for code coverage improvements and regularly monitor progress.",
-      "Identify tools and resources required for testing improvements and conduct training sessions if necessary.",
-      "Assess current deployment processes to identify bottlenecks and areas for automation.",
-      "Select a suitable deployment automation tool, possibly integrating with existing systems, and plan its implementation.",
-      "Develop a timeline and project plan for rolling out improvements in both testing and deployment processes."
-    ]
-  }
+  "4e59823b-4877-4569-b50c-8572dfcebe0e",
+  "71dfb2fd-52b2-43ab-8550-51cb12ca0629",
+  "3287e11e-9a31-4534-9060-0e46e334eeba"
 ]
 ```
 
@@ -238,8 +229,9 @@ for item in analysis['action_items']:
 
 # List all analyses
 response = requests.get(f"{BASE_URL}/transcripts")
-all_analyses = response.json()
-print(f"\nRetrieved {len(all_analyses)} analyses")
+all_analysis_ids = response.json()
+print(f"\nRetrieved {len(all_analysis_ids)} analysis IDs")
+print(f"Analysis IDs: {', '.join(all_analysis_ids)}")
 
 # Retrieve a previously analyzed transcript
 analysis_id = analysis['id']  # Use the ID from the previous response

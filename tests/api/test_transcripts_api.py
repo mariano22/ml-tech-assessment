@@ -32,11 +32,12 @@ def test_create_empty_transcript(client):
     assert "detail" in response.json()
 
 
-def test_list_transcript_analyses(client):
-    """Test that listing all analyses works correctly."""
+def test_list_transcript_ids(client):
+    """Test that listing all analysis IDs works correctly."""
     # Arrange - first create an analysis
     request_data = {"transcript": "This is a test transcript"}
-    client.post("/transcripts", json=request_data)
+    create_response = client.post("/transcripts", json=request_data)
+    analysis_id = create_response.json()["id"]
     
     # Act
     response = client.get("/transcripts")
@@ -46,10 +47,11 @@ def test_list_transcript_analyses(client):
     data = response.json()
     assert isinstance(data, list)
     assert len(data) >= 1
-    for analysis in data:
-        assert "id" in analysis
-        assert "summary" in analysis
-        assert "action_items" in analysis
+    assert analysis_id in data
+    # Check that data items are UUIDs and not full objects
+    for id_str in data:
+        # Verify we can parse it as a UUID (would raise ValueError if invalid)
+        uuid.UUID(id_str)
 
 
 def test_get_analysis_by_id(client):

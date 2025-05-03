@@ -95,19 +95,19 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
             logger.warning(f"Bad batch request from {client_host}: {str(e)}")
             raise HTTPException(status_code=400, detail=str(e))
     
-    @router.get("", response_model=List[AnalysisResponse])
-    async def list_transcript_analyses(
+    @router.get("", response_model=List[uuid.UUID])
+    async def list_transcript_ids(
         request: Request
-    ) -> List[AnalysisResponse]:
-        """List all transcript analyses"""
+    ) -> List[uuid.UUID]:
+        """List all transcript analysis IDs"""
         client_host = request.client.host if request.client else "unknown"
         logger.info(f"GET /transcripts request received from {client_host}")
         
         analyses = analyzer_service.list_all()
-        response_items = [AnalysisResponse.from_domain(analysis) for analysis in analyses]
+        analysis_ids = [analysis.id for analysis in analyses]
         
-        logger.info(f"Returning list of {len(response_items)} analyses")
-        return response_items
+        logger.info(f"Returning list of {len(analysis_ids)} analysis IDs")
+        return analysis_ids
     
     @router.get("/{analysis_id}", response_model=AnalysisResponse, responses={404: {"model": HTTPError}})
     async def get_analysis(
