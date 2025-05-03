@@ -1,0 +1,1 @@
+"""Infrastructure layer containing implementation details of external services and adapters.""" 
