@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-your_api_key_here}
+      - OPENAI_MODEL=${OPENAI_MODEL:-gpt-4o-2024-08-06}
+    volumes:
+      - ./app:/app/app
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/swagger"]
+      interval: 30s
+      timeout: 10s
+      retries: 3 

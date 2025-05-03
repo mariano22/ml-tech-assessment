@@ -39,6 +39,8 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
 
 ## Setup and Running
 
+### Option 1: Local Setup
+
 1. Clone the repository
 2. Set up environment variables:
    ```
@@ -53,7 +55,29 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
    ```
    uvicorn app.main:app --reload
    ```
-5. Access the Swagger documentation at: http://localhost:8000/swagger
+
+### Option 2: Run with Docker
+
+1. Clone the repository
+2. Build and run with Docker Compose:
+   ```
+   docker-compose up
+   ```
+   
+   Or set your OpenAI API key directly:
+   ```
+   OPENAI_API_KEY=your_api_key docker-compose up
+   ```
+
+3. Alternatively, use the Docker CLI:
+   ```
+   docker build -t transcript-analyzer .
+   docker run -p 8000:8000 -e OPENAI_API_KEY=your_api_key transcript-analyzer
+   ```
+
+### Access the API
+
+Access the Swagger documentation at: http://localhost:8000/swagger
 
 ## Testing
 
