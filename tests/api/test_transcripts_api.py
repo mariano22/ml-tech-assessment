@@ -6,29 +6,13 @@ import httpx
 from app.domain.models import TranscriptAnalysis
 
 
-def test_analyze_transcript_get(client):
-    """Test that the GET /transcripts/analyze endpoint works correctly."""
-    # Arrange
-    test_transcript = "This is a test transcript"
-    
-    # Act
-    response = client.get(f"/transcripts/analyze?transcript={test_transcript}")
-    
-    # Assert
-    assert response.status_code == 200
-    data = response.json()
-    assert "id" in data
-    assert data["summary"] == "Test summary"
-    assert data["action_items"] == ["Action 1", "Action 2"]
-
-
-def test_analyze_transcript_post(client):
-    """Test that the POST /transcripts/analyze endpoint works correctly."""
+def test_create_transcript_analysis(client):
+    """Test that the POST /transcripts endpoint works correctly."""
     # Arrange
     request_data = {"transcript": "This is a test transcript"}
     
     # Act
-    response = client.post("/transcripts/analyze", json=request_data)
+    response = client.post("/transcripts", json=request_data)
     
     # Assert
     assert response.status_code == 200
@@ -38,28 +22,41 @@ def test_analyze_transcript_post(client):
     assert data["action_items"] == ["Action 1", "Action 2"]
 
 
-def test_analyze_empty_transcript(client):
+def test_create_empty_transcript(client):
     """Test that empty transcripts are rejected with appropriate error messages."""
-    # Act - using GET endpoint
-    response = client.get("/transcripts/analyze?transcript=")
-    
-    # Assert
-    assert response.status_code == 400
-    assert "detail" in response.json()
-    
     # Act - using POST endpoint
-    response = client.post("/transcripts/analyze", json={"transcript": ""})
+    response = client.post("/transcripts", json={"transcript": ""})
     
     # Assert
     assert response.status_code == 400
     assert "detail" in response.json()
+
+
+def test_list_transcript_analyses(client):
+    """Test that listing all analyses works correctly."""
+    # Arrange - first create an analysis
+    request_data = {"transcript": "This is a test transcript"}
+    client.post("/transcripts", json=request_data)
+    
+    # Act
+    response = client.get("/transcripts")
+    
+    # Assert
+    assert response.status_code == 200
+    data = response.json()
+    assert isinstance(data, list)
+    assert len(data) >= 1
+    for analysis in data:
+        assert "id" in analysis
+        assert "summary" in analysis
+        assert "action_items" in analysis
 
 
 def test_get_analysis_by_id(client):
     """Test that getting an analysis by ID works correctly."""
     # Arrange - first create an analysis
     test_transcript = "This is a test transcript"
-    create_response = client.get(f"/transcripts/analyze?transcript={test_transcript}")
+    create_response = client.post("/transcripts", json={"transcript": test_transcript})
     analysis_id = create_response.json()["id"]
     
     # Act
@@ -99,7 +96,7 @@ async def test_analyze_batch(async_client):
     }
     
     # Act
-    response = await async_client.post("/transcripts/analyze/batch", json=batch_request)
+    response = await async_client.post("/transcripts/batch", json=batch_request)
     
     # Assert
     assert response.status_code == 200
@@ -121,7 +118,7 @@ async def test_analyze_batch_empty_list(async_client):
     batch_request = {"transcripts": []}
     
     # Act
-    response = await async_client.post("/transcripts/analyze/batch", json=batch_request)
+    response = await async_client.post("/transcripts/batch", json=batch_request)
     
     # Assert
     assert response.status_code == 400
@@ -137,7 +134,7 @@ async def test_analyze_batch_with_empty_transcript(async_client):
     }
     
     # Act
-    response = await async_client.post("/transcripts/analyze/batch", json=batch_request)
+    response = await async_client.post("/transcripts/batch", json=batch_request)
     
     # Assert
     assert response.status_code == 400

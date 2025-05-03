@@ -1,4 +1,5 @@
 from fastapi import FastAPI, status, Depends
+from contextlib import asynccontextmanager
 from app import configurations
 from app.adapters.inbound.rest import build_router
 from app.adapters.openai import OpenAIAdapter
@@ -8,6 +9,16 @@ from app.logging import configure_logging, get_logger
 
 # Create a logger for this module
 logger = get_logger(__name__)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Lifespan context manager for FastAPI application startup and shutdown events"""
+    # Startup event
+    logger.info("Application startup complete")
+    yield
+    # Shutdown event
+    logger.info("Application shutting down")
+
 
 def create_app(llm_adapter: LLm = None) -> FastAPI:
     """Create and configure the FastAPI application
@@ -42,6 +53,7 @@ def create_app(llm_adapter: LLm = None) -> FastAPI:
         description="API for analyzing text transcripts and providing summaries and action items",
         version="1.0.0",
         docs_url="/swagger",
+        lifespan=lifespan,
     )
     
     # Register routes
@@ -55,16 +67,6 @@ def create_app(llm_adapter: LLm = None) -> FastAPI:
         """Health check endpoint for monitoring and container health checks"""
         logger.debug("Health check endpoint called")
         return {"status": "healthy"}
-    
-    # Add startup event handler
-    @app.on_event("startup")
-    async def startup_event():
-        logger.info("Application startup complete")
-    
-    # Add shutdown event handler
-    @app.on_event("shutdown")
-    async def shutdown_event():
-        logger.info("Application shutting down")
     
     return app
 
