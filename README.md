@@ -59,23 +59,16 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
 ### Option 2: Run with Docker
 
 1. Clone the repository
-2. Build and run with Docker Compose:
+2. Build the Docker image:
    ```
-   docker-compose up
+   docker build -t transcript-analysis-api .
    ```
-   
-   Or set your OpenAI API key directly:
+3. Run the container with your OpenAI API key:
    ```
-   OPENAI_API_KEY=your_api_key docker-compose up
-   ```
-
-3. Alternatively, use the Docker CLI:
-   ```
-   docker build -t transcript-analyzer .
-   docker run -p 8000:8000 -e OPENAI_API_KEY=your_api_key transcript-analyzer
+   docker run -p 8000:8000 -e OPENAI_API_KEY=your_api_key -e OPENAI_MODEL=gpt-4o-2024-08-06 transcript-analysis-api
    ```
 
-### Access the API
+### Accessing the API
 
 Access the Swagger documentation at: http://localhost:8000/swagger
 
