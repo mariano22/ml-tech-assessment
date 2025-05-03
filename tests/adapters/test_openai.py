@@ -1,12 +1,7 @@
 from app import configurations
-import pydantic
 from tests.adapters import mock_data
 from app.adapters import openai
-
-
-class Response(pydantic.BaseModel):
-    summary: str
-    action_items: list[str]
+from app.dto.analysis import AnalysisDTO
 
 
 def test_openai_adapter() -> None:
@@ -22,10 +17,15 @@ def test_openai_adapter() -> None:
     openai_adapter = openai.OpenAIAdapter(env_variables.OPENAI_API_KEY, env_variables.OPENAI_MODEL)
 
     # action
-    response = openai_adapter.run_completion(system_prompt, user_prompt, Response)
+    response = openai_adapter.run_completion(system_prompt, user_prompt, AnalysisDTO)
     serialized_response = response.model_dump()
 
     # assert
     print(serialized_response)
     assert "summary" in serialized_response.keys()
     assert "action_items" in serialized_response.keys()
+    
+    # Test conversion to domain model
+    domain_model = response.to_domain_model()
+    assert domain_model.summary == response.summary
+    assert domain_model.action_items == response.action_items

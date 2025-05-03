@@ -1,15 +1,9 @@
 import uuid
 import asyncio
-import pydantic
 from app.domain.models import TranscriptAnalysis
+from app.dto.analysis import AnalysisDTO
 from app.ports import LLm, TranscriptAnalyzer, TranscriptRepository
 from app.prompts import SYSTEM_PROMPT, RAW_USER_PROMPT
-
-
-class AnalysisDTO(pydantic.BaseModel):
-    """Data transfer object for LLM response"""
-    summary: str
-    action_items: list[str]
 
 
 class TranscriptAnalyzerService(TranscriptAnalyzer):
@@ -31,10 +25,8 @@ class TranscriptAnalyzerService(TranscriptAnalyzer):
             AnalysisDTO
         )
         
-        analysis = TranscriptAnalysis(
-            summary=llm_response.summary,
-            action_items=llm_response.action_items
-        )
+        # Convert DTO to domain model
+        analysis = llm_response.to_domain_model()
         
         self._repository.save(analysis)
         return analysis
@@ -65,10 +57,8 @@ class TranscriptAnalyzerService(TranscriptAnalyzer):
             AnalysisDTO
         )
         
-        analysis = TranscriptAnalysis(
-            summary=llm_response.summary,
-            action_items=llm_response.action_items
-        )
+        # Convert DTO to domain model
+        analysis = llm_response.to_domain_model()
         
         self._repository.save(analysis)
         return analysis
@@ -87,6 +77,10 @@ class TranscriptAnalyzerService(TranscriptAnalyzer):
         """
         if not transcripts:
             raise ValueError("No transcripts provided")
+            
+        # Additional validation to check for empty transcripts
+        if any(not t or t.isspace() for t in transcripts):
+            raise ValueError("All transcripts must be non-empty")
             
         # Create a list of coroutines for parallel execution
         analysis_coroutines = [self.analyze_async(transcript) for transcript in transcripts]

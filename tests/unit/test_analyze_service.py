@@ -3,8 +3,9 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock
 import asyncio
 
-from app.application.analyze_service import TranscriptAnalyzerService, AnalysisDTO
+from app.application.analyze_service import TranscriptAnalyzerService
 from app.domain.models import TranscriptAnalysis
+from app.dto.analysis import AnalysisDTO
 from app.ports import LLm, TranscriptRepository
 
 
@@ -145,5 +146,18 @@ class TestTranscriptAnalyzerService:
             await self.service.analyze_many([])
             
         # No methods should be called
+        self.mock_llm.run_completion_async.assert_not_called()
+        self.mock_repository.save.assert_not_called()
+        
+    @pytest.mark.asyncio
+    async def test_analyze_many_with_empty_transcript(self):
+        # Arrange
+        transcripts = ["Valid transcript", ""]
+        
+        # Act & Assert
+        with pytest.raises(ValueError, match="All transcripts must be non-empty"):
+            await self.service.analyze_many(transcripts)
+            
+        # Verify that no analysis was attempted
         self.mock_llm.run_completion_async.assert_not_called()
         self.mock_repository.save.assert_not_called() 
