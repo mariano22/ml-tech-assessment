@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from app.domain.models import TranscriptAnalysis
 from app.ports import TranscriptAnalyzer
 from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError, TranscriptNotFoundError
+from app.schemas.http_error import HTTPError
 
 
 class TranscriptRequest(BaseModel):
@@ -51,7 +52,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
     """
     router = APIRouter(prefix="/transcripts", tags=["transcripts"])
     
-    @router.get("/analyze", response_model=AnalysisResponse)
+    @router.get("/analyze", response_model=AnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcript_get(
         transcript: Annotated[str, Query(description="The transcript text to analyze")]
     ) -> AnalysisResponse:
@@ -62,7 +63,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         except EmptyTranscriptError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
-    @router.post("/analyze", response_model=AnalysisResponse)
+    @router.post("/analyze", response_model=AnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcript_post(
         request: TranscriptRequest
     ) -> AnalysisResponse:
@@ -73,7 +74,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         except EmptyTranscriptError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
-    @router.post("/analyze/batch", response_model=BatchAnalysisResponse)
+    @router.post("/analyze/batch", response_model=BatchAnalysisResponse, responses={400: {"model": HTTPError}})
     async def analyze_transcripts_batch(
         request: BatchTranscriptRequest
     ) -> BatchAnalysisResponse:
@@ -87,7 +88,7 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         except InvalidBatchError as e:
             raise HTTPException(status_code=400, detail=str(e))
     
-    @router.get("/{analysis_id}", response_model=AnalysisResponse)
+    @router.get("/{analysis_id}", response_model=AnalysisResponse, responses={404: {"model": HTTPError}})
     async def get_analysis(analysis_id: uuid.UUID) -> AnalysisResponse:
         """Get a previously generated transcript analysis by ID"""
         try:
