@@ -97,10 +97,11 @@ Wraps both sync and async client, returns parsed DTO defined by caller.
 app/adapters/inbound/rest.py
 ```
 Builds a FastAPI `APIRouter`:
-  – `/transcripts/analyze` GET+POST  
-  – `/transcripts/analyze/batch`  
-  – `/transcripts/{id}`  
-  – `/health`  
+  – `/transcripts` POST (create analysis)
+  – `/transcripts` GET (list all analyses)
+  – `/transcripts/{id}` GET (get analysis by ID)
+  – `/transcripts/batch` POST (process multiple transcripts)
+  – `/health` GET (health check)
 Each handler catches domain errors and maps them to proper HTTP codes.
 
 ### 3.6 Infrastructure
@@ -167,10 +168,11 @@ docker-compose -f docker-compose.test.yml run test
 2. **DTO layer** keeps LLM JSON mistakes out of domain objects; also ensures schema validation.  
 3. **In-memory repo first** fast dev; future DB integration only needs one new adapter.  
 4. **FastAPI routers placed in adapters/inbound** Web framework is an outer concern, fits hexagonal radius.  
-5. **Dependency factory (`container.py`)** tests can inject mocks, main app uses real adapter.  
-6. **Async by default** more throughput with minimal added complexity, important for batch endpoint.  
-7. **Tests run in Docker** exact parity CI environment, no dev machine pollution.  
-8. **Pydantic everywhere** runtime data validation is priceless for external APIs, and gives automatic OpenAPI docs.  
+5. **RESTful API design principles** API follows standard RESTful conventions with proper resource-oriented endpoints and HTTP verbs.
+6. **Dependency factory (`container.py`)** tests can inject mocks, main app uses real adapter.  
+7. **Async by default** more throughput with minimal added complexity, important for batch endpoint.  
+8. **Tests run in Docker** exact parity CI environment, no dev machine pollution.  
+9. **Pydantic everywhere** runtime data validation is priceless for external APIs, and gives automatic OpenAPI docs.  
 
 --------------------------------------------------------------------
 ## 8. WHERE TO START READING CODE

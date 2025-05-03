@@ -23,24 +23,36 @@ The project follows a Hexagonal (Ports & Adapters) Architecture:
 - **Infrastructure Layer**: Technical implementations (repositories)
 - **Ports**: Interfaces defining the boundaries between layers
 
+## RESTful API Design
+
+The API follows RESTful principles:
+
+- **Resource-Based URLs**: Endpoints are organized around resources (transcripts)
+- **HTTP Verbs**: Using HTTP methods semantically (GET to retrieve, POST to create)
+- **Idempotence**: GET operations are idempotent and don't modify state
+- **Statelessness**: Each request contains all necessary information
+- **Collection Pattern**: Using plural nouns for resource collections (e.g., /transcripts)
+- **Consistent Responses**: Structured JSON responses with appropriate status codes
+
 ## API Endpoints
 
-### Analyze Transcript
+### Create Transcript Analysis
 
-- **GET /transcripts/analyze?transcript={text}**
-  - Accepts a plain text transcript
-  - Returns a summary and action items
-
-- **POST /transcripts/analyze**
+- **POST /transcripts**
   - Request body: `{ "transcript": "text" }`
-  - Returns a summary and action items
+  - Creates a new analysis and returns a summary and action items
 
 ### Batch Analysis (Concurrent Processing)
 
-- **POST /transcripts/analyze/batch**
+- **POST /transcripts/batch**
   - Request body: `{ "transcripts": ["text1", "text2", ...] }`
   - Processes multiple transcripts concurrently
   - Returns an array of results: `{ "results": [{ id, summary, action_items }, ...] }`
+
+### List All Transcript Analyses
+
+- **GET /transcripts**
+  - Retrieves all previously generated analyses
 
 ### Get Transcript Analysis by ID
 
@@ -103,30 +115,10 @@ Expected response:
 {"status":"healthy"}
 ```
 
-### Analyze a Transcript (GET method)
+### Analyze a Transcript
 
 ```bash
-# URL-encode your transcript
-curl "http://localhost:8000/transcripts/analyze?transcript=Today%20we%20discussed%20the%20new%20product%20launch%20scheduled%20for%20next%20month.%20We%20need%20to%20prepare%20marketing%20materials%20and%20contact%20our%20distributors."
-```
-
-Expected response:
-```json
-{
-  "id": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
-  "summary": "Discussion about upcoming product launch next month.",
-  "action_items": [
-    "Prepare marketing materials for the new product",
-    "Contact distributors about the launch",
-    "Finalize launch timeline"
-  ]
-}
-```
-
-### Analyze a Transcript (POST method)
-
-```bash
-curl -X POST http://localhost:8000/transcripts/analyze \
+curl -X POST http://localhost:8000/transcripts \
   -H "Content-Type: application/json" \
   -d '{"transcript":"The team needs to improve our testing process. We should adopt TDD and aim for higher code coverage. Also, we need to automate our deployment pipeline."}'
 ```
@@ -144,30 +136,40 @@ Expected response:
 }
 ```
 
-### Retrieve a Transcript Analysis by ID
+### List All Transcript Analyses
 
 ```bash
-# Use the ID returned from a previous analysis
-curl http://localhost:8000/transcripts/59a76d43-8c45-4dca-9a5c-0c82e8f9e182
+curl http://localhost:8000/transcripts
 ```
 
 Expected response:
 ```json
-{
-  "id": "59a76d43-8c45-4dca-9a5c-0c82e8f9e182",
-  "summary": "Discussion on improving testing processes and deployment automation.",
-  "action_items": [
-    "Implement Test-Driven Development (TDD)",
-    "Increase code coverage in tests",
-    "Automate the deployment pipeline"
-  ]
-}
+[
+  {
+    "id": "59a76d43-8c45-4dca-9a5c-0c82e8f9e182",
+    "summary": "Discussion on improving testing processes and deployment automation.",
+    "action_items": [
+      "Implement Test-Driven Development (TDD)",
+      "Increase code coverage in tests",
+      "Automate the deployment pipeline"
+    ]
+  },
+  {
+    "id": "7f8d9a6b-1c2d-3e4f-5a6b-7c8d9e0f1a2b",
+    "summary": "Increased customer service calls about mobile app login problems.",
+    "action_items": [
+      "Investigate mobile app login issues",
+      "Prepare communication plan for affected users",
+      "Monitor call volumes to track resolution progress"
+    ]
+  }
+]
 ```
 
 ### Batch Analysis of Multiple Transcripts
 
 ```bash
-curl -X POST http://localhost:8000/transcripts/analyze/batch \
+curl -X POST http://localhost:8000/transcripts/batch \
   -H "Content-Type: application/json" \
   -d '{
     "transcripts": [
@@ -217,12 +219,12 @@ BASE_URL = "http://localhost:8000"
 response = requests.get(f"{BASE_URL}/health")
 print(f"Health check response: {response.json()}")
 
-# Analyze a transcript (POST method)
+# Create a transcript analysis
 transcript_data = {
     "transcript": "We need to schedule the quarterly review meeting with all department heads next week."
 }
 response = requests.post(
-    f"{BASE_URL}/transcripts/analyze",
+    f"{BASE_URL}/transcripts",
     headers={"Content-Type": "application/json"},
     data=json.dumps(transcript_data)
 )
@@ -232,6 +234,11 @@ print(f"Summary: {analysis['summary']}")
 print("Action items:")
 for item in analysis['action_items']:
     print(f"- {item}")
+
+# List all analyses
+response = requests.get(f"{BASE_URL}/transcripts")
+all_analyses = response.json()
+print(f"\nRetrieved {len(all_analyses)} analyses")
 
 # Retrieve a previously analyzed transcript
 analysis_id = analysis['id']  # Use the ID from the previous response

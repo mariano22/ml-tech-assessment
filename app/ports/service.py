@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import uuid
+from typing import List
 from app.domain.models import TranscriptAnalysis
 
 
@@ -33,6 +34,15 @@ class TranscriptAnalyzer(ABC):
             
         Raises:
             ValueError: If no analysis with the given ID exists
+        """
+        pass
+    
+    @abstractmethod
+    def list_all(self) -> List[TranscriptAnalysis]:
+        """List all transcript analyses
+        
+        Returns:
+            List of all transcript analyses
         """
         pass
         

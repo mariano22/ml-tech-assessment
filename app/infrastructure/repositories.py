@@ -1,4 +1,5 @@
 import uuid
+from typing import List
 from app.domain.models import TranscriptAnalysis
 from app.ports import TranscriptRepository
 from app.logging import get_logger
@@ -42,4 +43,9 @@ class InMemoryTranscriptRepository(TranscriptRepository):
             raise ValueError(f"No transcript analysis found with id: {id}")
         
         logger.debug(f"Successfully retrieved analysis with ID: {id}")
-        return self._storage[id] 
+        return self._storage[id]
+    
+    def list(self) -> List[TranscriptAnalysis]:
+        """Retrieve all transcript analyses stored in the repository"""
+        logger.debug(f"Listing all analyses, total count: {len(self._storage)}")
+        return list(self._storage.values()) 

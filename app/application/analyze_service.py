@@ -1,5 +1,6 @@
 import uuid
 import asyncio
+from typing import List
 from app.domain.models import TranscriptAnalysis
 from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError, TranscriptNotFoundError
 from app.dto.analysis import AnalysisDTO
@@ -68,6 +69,17 @@ class TranscriptAnalyzerService(TranscriptAnalyzer):
             # Convert to domain-specific error
             logger.warning(f"Analysis not found with ID: {analysis_id}")
             raise TranscriptNotFoundError(str(exc)) from exc
+    
+    def list_all(self) -> List[TranscriptAnalysis]:
+        """List all transcript analyses
+        
+        Returns:
+            List of all transcript analyses
+        """
+        logger.info("Listing all transcript analyses")
+        analyses = self._repository.list()
+        logger.debug(f"Retrieved {len(analyses)} analyses")
+        return analyses
         
     async def analyze_async(self, transcript: str) -> TranscriptAnalysis:
         """Asynchronously analyze a transcript using the LLM and store the result"""
