@@ -15,7 +15,7 @@ services:
       - ./app:/app/app
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/swagger"]
+      test: ["CMD-SHELL", "python -c \"import http.client; conn = http.client.HTTPConnection('localhost', 8000); conn.request('GET', '/health'); response = conn.getresponse(); exit(0 if response.status == 200 else 1)\""]
       interval: 30s
       timeout: 10s
       retries: 3

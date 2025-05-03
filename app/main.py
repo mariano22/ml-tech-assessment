@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
 from app import configurations
 from app.adapters.inbound.rest import build_router
 from app.adapters.openai import OpenAIAdapter
@@ -37,6 +37,12 @@ def create_app() -> FastAPI:
     # Register routes
     router = build_router(analyzer_service)
     app.include_router(router)
+    
+    # Add health check endpoint
+    @app.get("/health", status_code=status.HTTP_200_OK, tags=["health"])
+    def health_check():
+        """Health check endpoint for monitoring and container health checks"""
+        return {"status": "healthy"}
     
     return app
 

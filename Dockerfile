@@ -5,9 +5,6 @@ WORKDIR /app
 # Install Poetry
 RUN pip install poetry==1.7.1
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
-
 # Copy Poetry configuration files
 COPY pyproject.toml poetry.lock* ./
 
