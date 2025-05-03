@@ -34,4 +34,34 @@ class TranscriptAnalyzer(ABC):
         Raises:
             ValueError: If no analysis with the given ID exists
         """
+        pass
+        
+    @abstractmethod
+    async def analyze_async(self, transcript: str) -> TranscriptAnalysis:
+        """Asynchronously analyze a transcript to generate a summary and action items
+        
+        Args:
+            transcript: The text transcript to analyze
+            
+        Returns:
+            TranscriptAnalysis: Analysis results with summary and action items
+            
+        Raises:
+            ValueError: If the transcript is empty
+        """
+        pass
+        
+    @abstractmethod
+    async def analyze_many(self, transcripts: list[str]) -> list[TranscriptAnalysis]:
+        """Concurrently analyze multiple transcripts
+        
+        Args:
+            transcripts: List of transcript texts to analyze
+            
+        Returns:
+            List of analysis results with summaries and action items
+            
+        Raises:
+            ValueError: If the transcripts list is empty or contains empty transcripts
+        """
         pass 
