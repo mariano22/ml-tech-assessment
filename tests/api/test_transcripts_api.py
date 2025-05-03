@@ -179,4 +179,14 @@ async def test_analyze_batch_with_empty_transcript(async_client):
     
     # Assert
     assert response.status_code == 400
-    assert "detail" in response.json() 
+    assert "detail" in response.json()
+
+
+def test_health_check(client):
+    """Test that the health check endpoint returns 200 OK and the expected response."""
+    # Act
+    response = client.get("/health")
+    
+    # Assert
+    assert response.status_code == 200
+    assert response.json() == {"status": "healthy"} 

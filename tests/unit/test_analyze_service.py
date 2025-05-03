@@ -3,10 +3,10 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock
 import asyncio
 
-from app.application.analyze_service import TranscriptAnalyzerService
-from app.domain.models import TranscriptAnalysis
 from app.dto.analysis import AnalysisDTO
+from app.domain.models import TranscriptAnalysis
 from app.ports import LLm, TranscriptRepository
+from app.container import get_service
 from app.domain.exceptions import EmptyTranscriptError, InvalidBatchError
 
 
@@ -14,7 +14,7 @@ class TestTranscriptAnalyzerService:
     def setup_method(self):
         self.mock_llm = MagicMock()
         self.mock_repository = MagicMock(spec=TranscriptRepository)
-        self.service = TranscriptAnalyzerService(
+        self.service = get_service(
             llm=self.mock_llm,
             repository=self.mock_repository
         )

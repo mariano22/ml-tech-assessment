@@ -97,4 +97,9 @@ def build_router(analyzer_service: TranscriptAnalyzer) -> APIRouter:
         except TranscriptNotFoundError as e:
             raise HTTPException(status_code=404, detail=str(e))
     
+    @router.get("/health")
+    async def health_check() -> dict:
+        """Check the health of the application"""
+        return {"status": "healthy"}
+    
     return router 

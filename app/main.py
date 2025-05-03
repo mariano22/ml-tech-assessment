@@ -2,8 +2,7 @@ from fastapi import FastAPI, status
 from app import configurations
 from app.adapters.inbound.rest import build_router
 from app.adapters.openai import OpenAIAdapter
-from app.application.analyze_service import TranscriptAnalyzerService
-from app.infrastructure.repositories import InMemoryTranscriptRepository
+from app.container import get_service
 
 
 def create_app() -> FastAPI:
@@ -15,16 +14,9 @@ def create_app() -> FastAPI:
     # Load configuration
     env = configurations.EnvConfigs()
     
-    # Set up dependencies
-    llm_adapter = OpenAIAdapter(
-        api_key=env.OPENAI_API_KEY,
-        model=env.OPENAI_MODEL
-    )
-    repository = InMemoryTranscriptRepository()
-    analyzer_service = TranscriptAnalyzerService(
-        llm=llm_adapter,
-        repository=repository
-    )
+    # Create dependencies
+    llm_adapter = OpenAIAdapter(api_key=env.OPENAI_API_KEY, model=env.OPENAI_MODEL)
+    analyzer_service = get_service(llm=llm_adapter)
     
     # Create and configure FastAPI app
     app = FastAPI(
