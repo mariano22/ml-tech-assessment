@@ -1,0 +1,1 @@
+"""Inbound adapters for handling external requests to the application.""" 
