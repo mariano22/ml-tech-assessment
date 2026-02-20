@@ -1,4 +1,4 @@
-> **Disclaimer:** Solo están publicados los procesos de entrevista en los que no se aclaró que no se podía difundir el material entregado. Las consignas originales no están incluidas. Si alguien desea que su proceso sea dado de baja, puede enviar un mail a marianojosecrosetti@gmail.com.
+> **Disclaimer:** Only interview processes where sharing the submitted material was not explicitly restricted are published here. Original assignments/prompts are not included. If you would like your process to be taken down, please contact marianojosecrosetti@gmail.com.
 
 # Transcript Analysis API
 
